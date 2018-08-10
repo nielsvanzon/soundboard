@@ -7,6 +7,7 @@ import asyncio
 import asyncio.queues
 import logging
 import random
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('soundbot')
@@ -151,8 +152,12 @@ async def handler(fplayer,bplayer,tplayer):
         log.debug("in handler loop")
         event = await s.get_event_aio()
         log.debug("processing: "+ event.json)
-        log.debug("processing type: "+ event.json["type"])
-        log.debug("processing text: "+ event.json["text"])
+        
+        with open(event.json) as f:
+            data = json.load(f)
+            
+         log.debug("data: " + data)
+        
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message': 
             handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer,tplayer)
 

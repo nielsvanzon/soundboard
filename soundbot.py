@@ -40,8 +40,8 @@ def handle_cmd(cmd,user,fplayer,bplayer,tplayer):
         fplayer.cancel()
     elif cmd=='!stop':
         bplayer.cancel()
-    elif cmd=='!stop':
-        bplayer.cancel()
+    elif cmd=='%stop':
+        tplayer.cancel()
     elif cmd.startswith('!'):
         soundq_back.put_nowait(cmd[1:])
     elif cmd.startswith('%'):
@@ -74,8 +74,12 @@ async def playsounds(q):
                     if sound.startswith('+'):
                         speed = 1 + ( sound.count('+') * 0.1 )
                         sound = sound.replace('+','')
-                        log.debug('SOUND {}, speed {}'.format(sound, speed))
-
+                        process = await asyncio.create_subprocess_shell("play mp3s/{0}.mp3 speed {1}".format(sound,speed))
+                        #process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "speed 1.5".split(" "))
+                    elif sound.startswith('-'):
+                        speed = 1 - ( sound.count('-') * 0.1 )
+                        sound = sound.replace('-','')
+                        process = await asyncio.create_subprocess_shell("play mp3s/{0}.mp3 speed {1}".format(sound,speed))
                     elif sound.startswith('$'): 
                         process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound[1:]), "reverse")
                     elif sound.startswith('heavy_dollar_sign'):

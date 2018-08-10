@@ -153,9 +153,7 @@ async def handler(fplayer,bplayer,tplayer):
         event = await s.get_event_aio()
         log.debug("processing: "+ event.json)
         
-        with open(event.json) as f:
-            data = json.load(f)
-            
+        data = json.loads(event.json) 
         log.debug("data: " + data)
         
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message': 

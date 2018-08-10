@@ -106,3 +106,4 @@ venv.bak/
 config.py
 *.mp3
 test.txt
+bin.

@@ -150,6 +150,8 @@ async def handler(fplayer,bplayer,tplayer):
     while True:
         log.debug("in handler loop")
         event = await s.get_event_aio()
+        log.debug("test text: "+ event.event.get('text'))
+        log.debug("test message: "+ event.event.get('message'))
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message':
             log.debug("processing: "+event.json)
             handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer,tplayer)

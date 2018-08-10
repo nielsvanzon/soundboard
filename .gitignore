@@ -106,4 +106,9 @@ venv.bak/
 config.py
 *.mp3
 test.txt
-bin.
+bin/
+slacksocket/
+include/
+__init__.py
+share/python-wheels/
+lib/python3.5/

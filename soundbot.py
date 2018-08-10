@@ -155,6 +155,7 @@ async def handler(fplayer,bplayer,tplayer):
         
         data = json.loads(event.json) 
         log.debug("data type: " + data['type'])
+        log.debug("data text: " + data['text'])
         
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message': 
             handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer,tplayer)

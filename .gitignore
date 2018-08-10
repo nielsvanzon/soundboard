@@ -112,3 +112,4 @@ include/
 __init__.py
 share/python-wheels/
 lib/python3.5/
+soundbot.py.org

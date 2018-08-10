@@ -30,7 +30,9 @@ def handle_cmd(cmd,user,fplayer,bplayer):
     cmd = cmd.replace(':','')
     if user=='soundbot': #TODO fetch username
         pass
-    elif cmd in ('ls','list'):
+    elif cmd in ('ls'):
+        asyncio.get_event_loop().create_task(s.send_msg_async(ls_files(), channel_name=config.slack_channel))
+    elif cmd in ('list'):
         asyncio.get_event_loop().create_task(s.send_msg_async(list_files(), channel_name=config.slack_channel))
     elif cmd in ('ll'):
         asyncio.get_event_loop().create_task(s.send_msg_async(ll_files(), channel_name=config.slack_channel))    
@@ -85,12 +87,17 @@ async def playsounds(q):
         except CancelledError:
             pass
 
-def list_files():
+def ls_files():
     all_files = os.listdir('mp3s')
     mp3s = [parts[0] for file in all_files for parts in [file.split('.')] if parts[-1]=='mp3']
     mp3s.sort()
     return ' '.join(mp3s)
 
+def list_files():
+    all_files = os.listdir('mp3s')
+    mp3s = [parts[0] for file in all_files for parts in [file.split('.')] if parts[-1]=='mp3']
+    mp3s.sort()
+    return ','.join(mp3s)
 
 def ll_files():
     all_files = os.listdir('mp3s')

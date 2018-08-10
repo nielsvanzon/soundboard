@@ -30,6 +30,8 @@ def handle_cmd(cmd,user,fplayer,bplayer,tplayer):
     cmd = cmd.replace(':','')
     if user=='soundbot': #TODO fetch username
         pass
+    elif cmd in ('--help'):
+        asyncio.get_event_loop().create_task(s.send_msg_async(helpme(), channel_name=config.slack_channel))
     elif cmd in ('ls'):
         asyncio.get_event_loop().create_task(s.send_msg_async(ls_files(), channel_name=config.slack_channel))
     elif cmd in ('list'):
@@ -55,6 +57,10 @@ def handle_cmd(cmd,user,fplayer,bplayer,tplayer):
         fplayer.cancel()
         bplayer.cancel() 
         tplayer.cancel()
+    elif cmd.startswith('&amp;'):
+        log.debug(cmd[5:])
+        soundq_fore.put_nowait(cmd[5:])
+        soundq_fore.put_nowait("${0}".format(cmd[5:]))
     elif user=='tim' and cmd=='man man man':
         fplayer.cancel()
         bplayer.cancel()
@@ -79,6 +85,23 @@ async def playsounds(q):
                         speed = 1 - ( sound.count('-') * 0.1 )
                         sound = sound.replace('-','')
                         process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "speed", "{0}".format(speed))
+                    elif sound.startswith(']'):
+                        vol = 1 + ( sound.count(']') * 0.2 )
+                        sound = sound.replace(']','')
+                        process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "vol", "{0}".format(vol))
+                    elif sound.startswith('['):
+                        vol = 1 - ( sound.count('[') * 0.1 )
+                        vol = 0.01 if vol < 0 else vol
+                        sound = sound.replace('[','')
+                        process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "vol", "{0}".format(vol))
+                    elif sound.startswith('}'):
+                        pitch = sound.count('}') * 100 
+                        sound = sound.replace('}','')
+                        process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "pitch", "{0}".format(pitch))
+                    elif sound.startswith('{'):
+                        pitch = 0 - sound.count('{') * 100
+                        sound = sound.replace('{','')
+                        process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound), "pitch", "{0}".format(pitch))
                     elif sound.startswith('$'): 
                         process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound[1:]), "reverse")
                     elif sound.startswith('heavy_dollar_sign'):
@@ -118,6 +141,10 @@ def ran():
     all_files = os.listdir('mp3s')
     mp3s = [parts[0] for file in all_files for parts in [file.split('.')] if parts[-1]=='mp3']
     return random.choice(mp3s) 
+
+def helpme():
+    return "+ = Snelheid verhogen\n- = Snelheid verlagen\n} = Pitch verhogen\n{ = Pitch verlagen\n] = Volume verhogen (Nee Tim)\n[ = Volume verlagen\n$ = Achterstevoren afspelen\n~ = Kill all\n& = Heen en weer"
+
 
 async def handler(fplayer,bplayer,tplayer):
     while True:

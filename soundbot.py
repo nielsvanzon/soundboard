@@ -67,7 +67,6 @@ async def playsounds(q):
                         speed = 1 + ( sound.count('+') * 0.1 )
                         sound = sound.replace('+','')
                         log.debug('SOUND {}, speed {}'.format(sound, speed))
-                        process = await asyncio.create_subprocess_shell("play mp3s/{}.mp3 speed {}".format(sound, speed))
 
                     elif sound.startswith('$'): 
                         process = await asyncio.create_subprocess_exec(config.play_cmd_rev,"mp3s/{0}.mp3".format(sound[1:]), "reverse")

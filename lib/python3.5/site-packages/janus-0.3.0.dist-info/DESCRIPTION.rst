@@ -1,0 +1,112 @@
+=======
+ janus
+=======
+
+Mixed sync-async queue, supposed to be used for communicating between
+classic synchronous (threaded) code and asynchronous (in terms of
+asyncio_) one.
+
+Like `Janus god <https://en.wikipedia.org/wiki/Janus>`_ the queue
+object from the library has two faces: synchronous and asynchronous
+interface.
+
+Synchronous is fully compatible with `standard queue
+<https://docs.python.org/3/library/queue.html>`_, asynchronous one
+follows `asyncio queue design
+<https://docs.python.org/3/library/asyncio-queue.html>`_.
+
+Usage example
+=============
+
+::
+
+    import asyncio
+    import janus
+
+    loop = asyncio.get_event_loop()
+    queue = janus.Queue(loop=loop)
+
+
+    def threaded(sync_q):
+        for i in range(100):
+            sync_q.put(i)
+        sync_q.join()
+
+
+    @asyncio.coroutine
+    def async_coro(async_q):
+        for i in range(100):
+            val = yield from async_q.get()
+            assert val == i
+            async_q.task_done()
+
+
+    fut = loop.run_in_executor(None, threaded, queue.sync_q)
+    loop.run_until_complete(async_coro(queue.async_q))
+    loop.run_until_complete(fut)
+
+
+License
+=======
+
+``janus`` library is offered under Apache 2 license.
+
+Thanks
+======
+
+The library development is sponsored by DataRobot (http://datarobot.com/)
+
+.. _asyncio: https://docs.python.org/3/library/asyncio.html
+
+Changes
+=======
+
+0.3.0 (2017-02-21)
+------------------
+
+- Expose `unfinished_tasks` property #34
+
+0.2.4 (2016-12-05)
+------------------
+
+- Restore tarball deploying
+
+0.2.3 (2016-07-12)
+------------------
+
+- Fix exception type
+
+0.2.2 (2016-07-11)
+------------------
+
+- Update asyncio.async() to use asyncio.ensure_future() #6
+
+0.2.1 (2016-03-24)
+------------------
+
+- Fix `python setup.py test` command #4
+
+0.2.0 (2015-09-20)
+------------------
+
+- Support Python 3.5
+
+0.1.5 (2015-07-24)
+------------------
+
+- Use loop.time() instead of time.monotonic()
+
+0.1.1 (2015-06-12)
+------------------
+
+- Fix some typos in README and setup.py
+
+- Add addtional checks for loop closing
+
+- Mention DataRobot
+
+0.1.0 (2015-06-11)
+------------------
+
+- Initial release
+

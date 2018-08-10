@@ -1,13 +1,13 @@
 from asyncio.futures import CancelledError
 
 import config
+import json
 from slacksocket import SlackSocket
 import os
 import asyncio
 import asyncio.queues
 import logging
 import random
-import json
 
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('soundbot')
@@ -156,7 +156,7 @@ async def handler(fplayer,bplayer,tplayer):
         with open(event.json) as f:
             data = json.load(f)
             
-         log.debug("data: " + data)
+        log.debug("data: " + data)
         
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message': 
             handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer,tplayer)

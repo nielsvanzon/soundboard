@@ -25,7 +25,7 @@ def aiter(q):
     return q
 '''
 
-def handle_cmd(cmd,user,fplayer,bplayer):
+def handle_cmd(cmd,user,fplayer,bplayer,tplayer):
     log.debug(user)
     cmd = cmd.replace(':','')
     if user=='soundbot': #TODO fetch username
@@ -40,8 +40,12 @@ def handle_cmd(cmd,user,fplayer,bplayer):
         fplayer.cancel()
     elif cmd=='!stop':
         bplayer.cancel()
+    elif cmd=='!stop':
+        bplayer.cancel()
     elif cmd.startswith('!'):
         soundq_back.put_nowait(cmd[1:])
+    elif cmd.startswith('%'):
+        soundq_third.put_nowait(cmd[1:])
     elif cmd.startswith('?'):
         soundq_fore.put_nowait('duhast')
         soundq_fore.put_nowait(cmd[1:])
@@ -50,9 +54,11 @@ def handle_cmd(cmd,user,fplayer,bplayer):
         soundq_fore.put_nowait('shotgun')
         fplayer.cancel()
         bplayer.cancel() 
+        tplayer.cancel()
     elif user=='tim' and cmd=='man man man':
         fplayer.cancel()
         bplayer.cancel()
+        tplayer.cancel()
         soundq_fore.put_nowait('neetim')
     elif cmd=='random':
         soundq_fore.put_nowait(ran()) 
@@ -110,20 +116,22 @@ def ran():
     mp3s = [parts[0] for file in all_files for parts in [file.split('.')] if parts[-1]=='mp3']
     return random.choice(mp3s) 
 
-async def handler(fplayer,bplayer):
+async def handler(fplayer,bplayer,tplayer):
     while True:
         log.debug("in handler loop")
         event = await s.get_event_aio()
         if event.event.get('channel')==config.slack_channel and event.event.get('type')=='message':
             log.debug("processing: "+event.json)
-            handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer)
+            handle_cmd(event.event.get('text'),event.event.get('user'),fplayer,bplayer,tplayer)
 
 soundq_fore = AiterQueue()
 soundq_back = AiterQueue()
+soundq_third = AiterQueue()
 
 s = SlackSocket(config.api_key,asyncio.get_event_loop(),translate=True)
 fplayer = asyncio.get_event_loop().create_task(playsounds(soundq_fore))
 bplayer = asyncio.get_event_loop().create_task(playsounds(soundq_back))
-asyncio.get_event_loop().run_until_complete(handler(fplayer,bplayer))
+tplayer = asyncio.get_event_loop().create_task(playsounds(soundq_third))
+asyncio.get_event_loop().run_until_complete(handler(fplayer,bplayer, tplayer))
 
 

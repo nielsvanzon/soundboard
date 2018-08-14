@@ -2,7 +2,7 @@
 Soundboard
 
 
-Demo config.py file:
+Demo `config.py` file:
 
 ```
 play_cmd= "mplayer"   # "afplay" for MacOS

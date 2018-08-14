@@ -1,6 +1,4 @@
-# soundboard
-Soundboard
-
+# Soundboard
 
 Demo `config.py` file:
 
